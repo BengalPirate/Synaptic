@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { SignupValidation } from "@/lib/validation";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
+import { createUserAccount } from "@/lib/appwrite/api";
 
 
 const SignupForm = () => {
@@ -26,10 +27,11 @@ const SignupForm = () => {
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof SignupValidation>){
-    // Do something with the form values.
-    // This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof SignupValidation>){
+    // create the user
+    const newUser = await createUserAccount(values);
+
+    console.log(newUser)
   }
 
   return (
@@ -102,7 +104,7 @@ const SignupForm = () => {
           </Button>
           <p className="text-small-regular text-light-2 text-center mt-2">
             Already have an account?
-            <Link to="/sign-in" className="text-primary">Log in</Link>
+            <Link to="/sign-in" className="text-primary-500 text-small-semibold ml-1">Log in</Link>
           </p>
         </form>
       </div>
