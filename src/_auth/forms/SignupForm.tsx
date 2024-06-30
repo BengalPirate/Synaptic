@@ -38,7 +38,7 @@ const SignupForm = () => {
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
 
-        <img src="/assets/images/alt-logo-small.png" alt="logo" style={{ width: '20%', height: '20%', marginBottom: '30px' }}/>
+        <img src="/assets/images/alt-logo.png" alt="logo" style={{ width: '45%', height: '45%', marginBottom: '5px' }}/>
 
         {/* Welcome Video */}
         <video
