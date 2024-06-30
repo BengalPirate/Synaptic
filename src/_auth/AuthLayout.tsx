@@ -4,7 +4,7 @@ const AuthLayout = () => {
   const isAuthenticated = false;
 
   const getRandomVideoSrc = () => {
-    const randomNumber = Math.floor(Math.random() *11) +1;
+    const randomNumber = Math.floor(Math.random() *2) +1;
     return `/assets/videos/Synapse_web${randomNumber}.mov`;
   };
 
