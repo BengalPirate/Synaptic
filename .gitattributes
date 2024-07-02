@@ -3,3 +3,7 @@ public/assets/videos/Synapse_web1.mov filter=lfs diff=lfs merge=lfs -text
 public/assets/videos/Synapse_web2.mov filter=lfs diff=lfs merge=lfs -text
 public/assets/videos/Synapse_web3.mov filter=lfs diff=lfs merge=lfs -text
 public/assets/videos/Synapse_web4.mov filter=lfs diff=lfs merge=lfs -text
+public/assets/videos/Synapse_web5.mov filter=lfs diff=lfs merge=lfs -text
+public/assets/videos/Synapse_web6.mov filter=lfs diff=lfs merge=lfs -text
+public/assets/videos/Synapse_web7.mov filter=lfs diff=lfs merge=lfs -text
+public/assets/videos/Synapse_web8.mov filter=lfs diff=lfs merge=lfs -text
