@@ -4,6 +4,7 @@ import { AllUsers, CreatePost, EditPost, Explore, Home, PostDetails, Profile, Sa
 import SignupForm from './_auth/forms/SignupForm';
 import AuthLayout from './_auth/AuthLayout';
 import RootLayout from './_root/RootLayout';
+import Room from './_root/pages/Messaging';
 import { Toaster } from "@/components/ui/toaster"
 
 
@@ -15,6 +16,7 @@ const App = () => {
             <Route element={<AuthLayout/>}>
                 <Route path="/sign-in" element={<SigninForm/>}/>
                 <Route path="/sign-up" element={<SignupForm/>}/>
+				<Route path="/messaging" element={<Room/>}/>
             </Route>
 
             {/* private routes */}
