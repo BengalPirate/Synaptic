@@ -10,8 +10,8 @@ const Room = () => {
 	}, [])
 	const getMessages = async () => {
 		const response = await databases.listDocuments(
-		appwriteConfig.databaseId,
-		appwriteConfig.messagesCollectionId
+			appwriteConfig.databaseId,
+			appwriteConfig.messagesCollectionId
 		)
 		console.log('RESPONSE: ', response)
 	}
