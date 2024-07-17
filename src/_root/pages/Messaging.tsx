@@ -5,6 +5,8 @@ import { databases, appwriteConfig} from "../../../src/lib/appwrite/config.ts";
 
 const Room = () => {
 
+	const [messages, setMessages] = useState([])
+	
 	useEffect(() => {
 		getMessages()
 	}, [])
@@ -14,10 +16,19 @@ const Room = () => {
 			appwriteConfig.messagesCollectionId
 		)
 		console.log('RESPONSE: ', response)
+		setMessages(response.documents)
 	}
 	return (
 		<div>
-			ROOM
+			<div>
+				{messages.map(message => (
+					<div key={message.$id}>
+						<div>
+							<span>{message.body}</span>
+						</div>
+					</div>
+				))}
+			</div>
 		</div>
 	)
 }
