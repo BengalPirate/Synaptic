@@ -9,9 +9,10 @@ import { Toaster } from "@/components/ui/toaster"
 
 
 const App = () => {
+
   return (
-    <main className="flex h-screen">
-        <Routes>
+    <main className="flex h-screen">=
+      <Routes>
             {/* public routes */}
             <Route element={<AuthLayout/>}>
                 <Route path="/sign-in" element={<SigninForm/>}/>
