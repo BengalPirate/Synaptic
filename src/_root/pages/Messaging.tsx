@@ -5,7 +5,7 @@ import { databases, appwriteConfig} from "../../../src/lib/appwrite/config.ts";
 
 const Room = () => {
 
-	const [messages, setMessages] = useState([])
+	const [messages, setMessages] = useState([]);
 	
 	useEffect(() => {
 		getMessages()
