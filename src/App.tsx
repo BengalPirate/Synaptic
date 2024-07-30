@@ -17,7 +17,6 @@ const App = () => {
             <Route element={<AuthLayout/>}>
                 <Route path="/sign-in" element={<SigninForm/>}/>
                 <Route path="/sign-up" element={<SignupForm/>}/>
-				<Route path="/messaging" element={<Room/>}/>
             </Route>
 
             {/* private routes */}
@@ -30,6 +29,7 @@ const App = () => {
                 <Route path="/update-post/:id" element={<EditPost />}/>
                 <Route path="/posts/:id" element={<PostDetails />}/>
                 <Route path="/profile/:id/*" element={<Profile />}/>
+                <Route path="/messaging" element={<Room/>}/>
                 <Route path="/update-profile/:id" element={<UpdateProfile />}/>
             </Route>
         </Routes>
