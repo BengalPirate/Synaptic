@@ -56,3 +56,17 @@ export type IContextType = {
     username: string;
     password: string;
   };
+
+  export type IMessage = {
+    senderId: string;
+    senderUsername: string;
+    body: string;
+    receiverIds: string[];
+    receiverUsernames: string[]
+  };
+  export type IRoom = {
+	  userIds: Set<string>,
+	  messages: IMessage[]
+  }
+
+

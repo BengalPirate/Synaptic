@@ -5,6 +5,7 @@ import SignupForm from './_auth/forms/SignupForm';
 import AuthLayout from './_auth/AuthLayout';
 import RootLayout from './_root/RootLayout';
 import Room from './_root/pages/Messaging';
+import Messaging from './_root/pages/Messaging';
 import { Toaster } from "@/components/ui/toaster"
 
 
@@ -17,13 +18,14 @@ const App = () => {
             <Route element={<AuthLayout/>}>
                 <Route path="/sign-in" element={<SigninForm/>}/>
                 <Route path="/sign-up" element={<SignupForm/>}/>
-				<Route path="/messaging" element={<Room/>}/>
             </Route>
 
             {/* private routes */}
             <Route element={<RootLayout/>}>
                 <Route index element={<Home/>}/>
                 <Route path="/explore" element={<Explore />}/>
+				<Route path="/messaging" element={<Messaging/>}/>
+				<Route path="/chatroom" element={<Room/>}/>
                 <Route path="/saved" element={<Saved />}/>
                 <Route path="/all-users" element={<AllUsers />}/>
                 <Route path="/create-post" element={<CreatePost />}/>
