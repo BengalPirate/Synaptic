@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/toaster"
 const App = () => {
 
   return (
-    <main className="flex h-screen">=
+    <main className="flex h-screen">
       <Routes>
             {/* public routes */}
             <Route element={<AuthLayout/>}>
@@ -24,15 +24,14 @@ const App = () => {
             <Route element={<RootLayout/>}>
                 <Route index element={<Home/>}/>
                 <Route path="/explore" element={<Explore />}/>
-				<Route path="/messaging" element={<Messaging/>}/>
-				<Route path="/chatroom" element={<Room/>}/>
+				        <Route path="/messaging" element={<Messaging/>}/>
                 <Route path="/saved" element={<Saved />}/>
                 <Route path="/all-users" element={<AllUsers />}/>
                 <Route path="/create-post" element={<CreatePost />}/>
                 <Route path="/update-post/:id" element={<EditPost />}/>
                 <Route path="/posts/:id" element={<PostDetails />}/>
                 <Route path="/profile/:id/*" element={<Profile />}/>
-                <Route path="/messaging" element={<Room/>}/>
+                <Route path="/room" element={<Room/>}/>
                 <Route path="/update-profile/:id" element={<UpdateProfile />}/>
             </Route>
         </Routes>

@@ -4,6 +4,7 @@ import {Query} from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 import {set} from "react-hook-form";
 import {IMessage, IRoom} from '../../types/index.ts';
+import { useNavigate } from 'react-router-dom';
 
 // Function to check if a map contains an object with the specific set of tags
 function containsObjectWithMatchSet(map: Map<number, IRoom>, matchSet: Set<string>): [boolean, number] {
@@ -31,6 +32,7 @@ const Messaging = () => {
 	const [userRooms, setUserRooms] = useState([])
 	const [roomCount, setRoomCount] = useState(0)
 	const { user } = useUserContext()
+	const navigate  = useNavigate()
 	
 	useEffect(() => {
 		const fetchData = async () => {
@@ -59,6 +61,13 @@ const Messaging = () => {
 
 	const roomCountDecrement = () => {
 		setRoomCount(roomCount - 1);
+	}
+
+	const selectRoom = (roomKey: number) => {
+		navigate({
+			pathname: '/room',
+			state: {room: userRooms[roomKey]}
+		})
 	}
 
 	const getUserMessages = async () => {
@@ -119,16 +128,20 @@ const Messaging = () => {
 			<div className="messaging-container">
 				<h1 className="messages-header">Messages</h1>
 				{userRooms.map(([room_num, room]) => (
-					<div key={room_num} className="room--wrapper">
-						<div className="room--header">
-							<small className="room--users">{room.userIds}</small>
+					<button onClick={selectRoom(room_num)}>
+						<div key={room_num} className="room--wrapper">
+							<div className="room--header">
+								<small className="room--users">{
+								[...room.messages[0].receiver_usernames, room.messages[0].send_username]
+								.filter(name => name !== user.username)
+								}</small>
+							</div>
+							<div className="messagePreview--wrapper">
+								<span>{room.messages[room.messages.length - 1].body}</span>
+							</div>
 						</div>
-						<div className="messagePreview--wrapper">
-							<span>{room.messages[room.messages.length - 1].body}</span>
-						</div>
-					</div>
+					</button>
 				))}
-				
 			</div>
 		</main>
 	)
