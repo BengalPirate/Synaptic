@@ -1,18 +1,49 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import { databases, appwriteConfig} from "../../lib/appwrite/config.ts";
 import { ID } from 'appwrite' 
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
+async function getMessagesDocumentById(id: string) {
+    try {
+        const document = await databases.getDocument(appwriteConfig.databaseId, appwriteConfig.messagesCollectionId, id);
+        return document;
+    } catch (error) {
+        console.error(`Error fetching document with ID ${id}:`, error);
+        return null; // or handle the error as needed
+    }
+}
 
 const Room = () => {
-
+	const { id } = useParams()
+	const [messagesIds, setMessagesIds] = useState([]);
 	const [messages, setMessages] = useState([]);
 	const [messageBody, setMessageBody] = useState('')
-	const location = useLocation()
-	const room = location.state
+
+
+	console.log(id)
 
 	useEffect(() => {
-		getMessages()
-	}, [messages])
+		const fetchRoom = async () => {
+			console.log("FETCHING ROOM MESSAGES...")
+			try {
+				await getRoomMessagesIds()
+			} catch (error) {
+				console.error("ERROR FETCHING ROOM: ", error)
+			}
+		}
+		fetchRoom()
+	}, [])
+
+	useEffect(() => {
+		const fetchRoomMessages = async () => {
+			try {
+				await getMessages()
+			} catch (error) {
+				console.error("ERROR FETCHING ROOM MESSAGES")
+			}
+		}
+		fetchRoomMessages()
+	}, [messagesIds])
 
 	const handleSubmit = async () => {
 		e.preventDefault()
@@ -28,8 +59,33 @@ const Room = () => {
 						)
 	}
 
+	const getRoomMessagesIds = async () => {
+		if (id){
+			try{
+				const userRoom = await databases.getDocument(
+					appwriteConfig.databaseId,
+					appwriteConfig.roomsCollectionId,
+					id
+				)
+				console.log("ROOM: ", userRoom)
+
+				setMessagesIds(userRoom.messages);
+			} catch (error) {
+				console.log("ERROR RECEIVING ROOM: ", error)
+			}
+		}
+	}
+
 	const getMessages = async () => {
-		setMessages(room.messages)
+		try {
+			const roomMessages = await Promise.all(messagesIds.map( async (id) => {
+				return await getMessagesDocumentById(id)
+			}))
+			console.log("ROOM MESSAGES: ", roomMessages)
+			setMessages(roomMessages)
+		} catch (error) {
+			console.log("ERROR FETCHING MESSAGES: "	, error)
+		}
 	}
 
 	return (
