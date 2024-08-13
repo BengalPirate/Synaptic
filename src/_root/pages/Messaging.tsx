@@ -5,7 +5,7 @@ import { useUserContext } from "@/context/AuthContext";
 
 import "../../../styles/messaging.css";
 import { Edit } from "react-feather";
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
         
 async function getMessagesDocumentById(id: string) {
     try {
@@ -21,7 +21,6 @@ const Messaging = () => {
   const [userRooms, setUserRooms] = useState([])
 	const [roomPreviews, setRoomPreviews] = useState([])
 	const { user } = useUserContext()
-	const { id } = useParams()
 
   /*Set state for create-room to false */
   const [openPopup, setOpenPopup] = useState(false);
