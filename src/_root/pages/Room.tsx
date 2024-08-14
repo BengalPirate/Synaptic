@@ -8,6 +8,7 @@ import { ID } from "appwrite";
 import { ArrowLeft, MoreVertical } from "react-feather";
 import { Link, useParams } from "react-router-dom";
 import "../../../styles/room.css";
+import { useUserContext } from "@/context/AuthContext";
 
 async function getMessagesDocumentById(id: string) {
   try {
@@ -23,12 +24,36 @@ async function getMessagesDocumentById(id: string) {
   }
 }
 
+async function getUserDocumentById(id: string) {
+    try {
+        const document = await databases.getDocument(appwriteConfig.databaseId, appwriteConfig.userCollectionId, id);
+        return document;
+    } catch (error) {
+        console.error(`ERROR FETCHING USER DOCUMENT ${id}: `, error);
+        return null; // or handle the error as needed
+    }
+}
+
+async function getRoomDocumentById(id: string) {
+    try {
+        const document = await databases.getDocument(appwriteConfig.databaseId, appwriteConfig.userCollectionId, id);
+        return document;
+    } catch (error) {
+        console.error(`ERROR FETCHING USER DOCUMENT ${id}: `, error);
+        return null; // or handle the error as needed
+    }
+  };
+
 const Room = () => {
   const { id } = useParams();
+  const { user } = useUserContext()
   const [messagesIds, setMessagesIds] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [room, setRoom] = useState({});
   const [messageBody, setMessageBody] = useState("");
   const [userId, setUserId] = useState("");
+  const [otherUsernames, setOtherUsernames] = useState([]);	
+
 
   // console.log(id);
 
@@ -42,7 +67,9 @@ const Room = () => {
       }
     };
     fetchRoom();
-
+  }, []);
+  
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         const user = await account.get();
@@ -66,53 +93,128 @@ const Room = () => {
     };
     fetchRoomMessages();
   }, [messagesIds]);
+  
+  useEffect(() => {
+		const fetchOtherUsernames = async () => {
+			console.log("SETTING OTHER USERS...")
+			try {
+				await setOtherUsers()
+			} catch (error) {
+				console.error("ERROR FETCHING ROOM: ", error)
+			}
+		}
+		fetchOtherUsernames()
+	}, [room])
 
-  const handleSubmit = async () => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+		e.preventDefault()
 
-    let payload = {
-      body: messageBody,
-      userId: userId,
-    };
-    let response = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.messagesCollectionId,
-      ID.unique(),
-      payload
-    );
-  };
+		const otherUserIds = room!.user_ids.filter(id => id !== user.id)
+		const newMessageId = ID.unique()
 
+		console.log("OTHER USERNAMES FOR MESSAGE PAYLOAD: ", otherUsernames)
+		console.log("MESSAGE BODY: ", messageBody)
+		let messagePayload = {
+			sender_username: user.username,
+			sender_id: user.id,
+			body: messageBody,
+			receiver_usernames: otherUsernames,
+			receiver_ids: otherUserIds,
+			room_id: room.$id
+		}
+		
+		let createMessageResponse = await databases.createDocument(
+							appwriteConfig.databaseId, 
+							appwriteConfig.messagesCollectionId,
+							newMessageId,
+							messagePayload
+		)
+
+		await updateRoomMessages(createMessageResponse)
+
+		console.log("MESSAGE CREATE RESPONSE: ", createMessageResponse)
+		
+		setMessages([...messages, createMessageResponse])
+
+		console.log("UPDATED MESSAGES: ", messages)
+
+		setMessageBody('');
+
+		let roomPayload = {
+			room_name: room.room_name,
+			user_ids: room.user_ids,
+			messages: [...room.messages, createMessageResponse.$id]
+		}
+
+		console.log("ROOM PAYLOAD: ", roomPayload)
+
+		try {
+			const roomUpdateResponse = await databases.updateDocument(
+				appwriteConfig.databaseId,
+				appwriteConfig.roomsCollectionId,
+				room!.$id,
+				roomPayload
+			)
+			console.log("ROOM UPDATE RESPONSE: ", roomUpdateResponse)
+		} catch (error) {
+			console.log("ERROR UPDATING ROOM MESSAGES: ", error)
+		}
+
+		
+	}
   const getRoomMessagesIds = async () => {
-    if (id) {
-      try {
-        const userRoom = await databases.getDocument(
-          appwriteConfig.databaseId,
-          appwriteConfig.roomsCollectionId,
-          id
-        );
-        console.log("ROOM: ", userRoom);
+		console.log("ROOM ID: ", id)
+		if (id){
+			try{
+				const userRoom = await databases.getDocument(
+					appwriteConfig.databaseId,
+					appwriteConfig.roomsCollectionId,
+					id
+				)
+				console.log("ROOM: ", userRoom)
 
-        setMessagesIds(userRoom.messages);
-      } catch (error) {
-        console.log("ERROR RECEIVING ROOM: ", error);
-      }
-    }
-  };
+				setMessagesIds(userRoom.messages);
+				setRoom(userRoom);
+			} catch (error) {
+				console.log("ERROR RECEIVING ROOM: ", error)
+			}
+		}
+	}
 
   const getMessages = async () => {
-    try {
-      const roomMessages = await Promise.all(
-        messagesIds.map(async (id) => {
-          return await getMessagesDocumentById(id);
-        })
-      );
-      console.log("ROOM MESSAGES: ", roomMessages);
-      setMessages(roomMessages);
-    } catch (error) {
-      console.log("ERROR FETCHING MESSAGES: ", error);
-    }
-  };
+		try {
+			const roomMessages = await Promise.all(messagesIds.map( async (id) => {
+				return await getMessagesDocumentById(id)
+			}))
+			console.log("ROOM MESSAGES: ", roomMessages)
+			setMessages(roomMessages)
+		} catch (error) {
+			console.log("ERROR FETCHING MESSAGES: "	, error)
+		}
+	}
+  
+  const setOtherUsers = async () => {
+		try {
+			const fetchedUsers = await Promise.all(room.user_ids.map( async (id) => {
+				return await getUserDocumentById(id)
+			}))
+			const otherFetchedUsers = fetchedUsers.filter(fetchedUser => fetchedUser.username !== user.username)
+			console.log("OTHER USERS: ", otherFetchedUsers)
+			const otherUsernamesToBeSet = otherFetchedUsers.map(fetchedUser => fetchedUser.username);
+			console.log("OTHER USERNAMES: ", otherUsernamesToBeSet)
+			setOtherUsernames(otherUsernamesToBeSet)
+		} catch (error) {
+			console.log("ERROR FETCHING OTHER USERS", error)
+		}
+	}
 
+	const updateRoomMessages = async (newMessage) => {
+		setRoom(prevRoom => ({
+			...prevRoom,
+			messages: [...prevRoom.messages, newMessage.$id]
+		}));
+	};
+  
   return (
     <main className="container">
       <div className="room--format">
@@ -150,26 +252,6 @@ const Room = () => {
                   </div>
                 </div>
               ))}
-
-              {/* <div className="message--wrapper my-message">
-              <div className="message--header">
-                <small className="message-timestamp">time stamp</small>
-              </div>
-
-              <div className="message--body">
-                <span>Hello World</span>
-              </div>
-            </div>
-
-            <div className="message--wrapper other-message">
-              <div className="message--header">
-                <small className="message-timestamp">time stamp</small>
-              </div>
-
-              <div className="message--body">
-                <span>Hello World</span>
-              </div>
-            </div> */}
             </div>
           </div>
           <form onSubmit={handleSubmit} id="message--form">
@@ -199,3 +281,4 @@ const Room = () => {
   );
 };
 export default Room;
+
