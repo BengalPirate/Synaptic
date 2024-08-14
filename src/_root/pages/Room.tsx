@@ -41,10 +41,9 @@ const Room = () => {
 	const { user } = useUserContext()
 	const [messagesIds, setMessagesIds] = useState([]);
 	const [messages, setMessages] = useState([]);
-	const [room, setRoom] = useState();
+	const [room, setRoom] = useState({});
 	const [messageBody, setMessageBody] = useState('')
-	const [otherUsernames, setOtherUsernames] = useState([]);
-	
+	const [otherUsernames, setOtherUsernames] = useState([]);	
 
 	useEffect(() => {
 		const fetchRoom = async () => {
@@ -87,8 +86,6 @@ const Room = () => {
 
 		const otherUserIds = room!.user_ids.filter(id => id !== user.id)
 		const newMessageId = ID.unique()
-		
-		updateRoomMessages(messageBody)
 
 		console.log("OTHER USERNAMES FOR MESSAGE PAYLOAD: ", otherUsernames)
 		console.log("MESSAGE BODY: ", messageBody)
@@ -108,20 +105,30 @@ const Room = () => {
 							messagePayload
 		)
 
+		await updateRoomMessages(createMessageResponse)
+
 		console.log("MESSAGE CREATE RESPONSE: ", createMessageResponse)
 		
 		setMessages([...messages, createMessageResponse])
 
-		console.log("UPDATES MESSAGES: ", messages)
+		console.log("UPDATED MESSAGES: ", messages)
 
 		setMessageBody('');
+
+		let roomPayload = {
+			room_name: room.room_name,
+			user_ids: room.user_ids,
+			messages: [...room.messages, createMessageResponse.$id]
+		}
+
+		console.log("ROOM PAYLOAD: ", roomPayload)
 
 		try {
 			const roomUpdateResponse = await databases.updateDocument(
 				appwriteConfig.databaseId,
 				appwriteConfig.roomsCollectionId,
 				room!.$id,
-				room
+				roomPayload
 			)
 			console.log("ROOM UPDATE RESPONSE: ", roomUpdateResponse)
 		} catch (error) {
@@ -164,22 +171,23 @@ const Room = () => {
 
 	const setOtherUsers = async () => {
 		try {
-			const otherUsers = await Promise.all(room.user_ids.map( async (id) => {
+			const fetchedUsers = await Promise.all(room.user_ids.map( async (id) => {
 				return await getUserDocumentById(id)
 			}))
-			console.log("USERS: ", otherUsers)
-			otherUsernames = otherUsers.map(user => user.username);
-			console.log("OTHER USERNAMES: ", otherUsernames)
-			setOtherUsernames(otherUsernames)
+			const otherFetchedUsers = fetchedUsers.filter(fetchedUser => fetchedUser.username !== user.username)
+			console.log("OTHER USERS: ", otherFetchedUsers)
+			const otherUsernamesToBeSet = otherFetchedUsers.map(fetchedUser => fetchedUser.username);
+			console.log("OTHER USERNAMES: ", otherUsernamesToBeSet)
+			setOtherUsernames(otherUsernamesToBeSet)
 		} catch (error) {
 			console.log("ERROR FETCHING OTHER USERS", error)
 		}
 	}
 
-	const updateRoomMessages = (newMessage) => {
-		setRoom(room => ({
-			...room,
-			messages: [...room!.messages, newMessage]
+	const updateRoomMessages = async (newMessage) => {
+		setRoom(prevRoom => ({
+			...prevRoom,
+			messages: [...prevRoom.messages, newMessage.$id]
 		}));
 	};
 
