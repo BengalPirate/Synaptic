@@ -111,7 +111,7 @@ const Messaging = () => {
         {userRooms.map((room) => (
           <Link to={`/room/${room.$id}`} key={room.$id}>
             <div className="room--wrapper">
-              <div className="room--header">
+              <div className="conversation--header">
                 <small className="room--users">{room.room_name}</small>
               </div>
               <div className="messagePreview--wrapper">

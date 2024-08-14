@@ -5,8 +5,8 @@ import {
   account,
 } from "../../lib/appwrite/config.ts";
 import { ID } from "appwrite";
-import { ArrowLeft } from "react-feather";
-import { useParams } from "react-router-dom";
+import { ArrowLeft, MoreVertical } from "react-feather";
+import { Link, useParams } from "react-router-dom";
 import "../../../styles/room.css";
 
 async function getMessagesDocumentById(id: string) {
@@ -115,29 +115,43 @@ const Room = () => {
 
   return (
     <main className="container">
-      <div className="room--container">
-        <div>
-          <div className="chat-box">
-            {messages.map((message) => (
-              <div
-                key={message.$id}
-                className={`message--wrapper ${
-                  message.sender_id === userId ? "my-message" : "other-message"
-                }`}
-              >
-                <div className="message--header">
-                  <small className="message-timestamp">
-                    {message.$createdAt}
-                  </small>
-                </div>
+      <div className="room--format">
+        <div className="room--container">
+          <div className="room--header">
+            <div className="back-arrow">
+              <Link to={`/messaging`}>
+                <ArrowLeft />
+              </Link>
+            </div>
+            <div className="room--users">Tester789</div>
+            <div className="more-options">
+              <MoreVertical></MoreVertical>
+            </div>
+          </div>
+          <div>
+            <div className="chat-box">
+              {messages.map((message) => (
+                <div
+                  key={message.$id}
+                  className={`message--wrapper ${
+                    message.sender_id === userId
+                      ? "other-message"
+                      : "my-message"
+                  }`}
+                >
+                  <div className="message--header">
+                    <small className="message-timestamp">
+                      {message.$createdAt}
+                    </small>
+                  </div>
 
-                <div className="message--body">
-                  <span>{message.body}</span>
+                  <div className="message--body">
+                    <span>{message.body}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            <div className="message--wrapper my-message">
+              {/* <div className="message--wrapper my-message">
               <div className="message--header">
                 <small className="message-timestamp">time stamp</small>
               </div>
@@ -155,26 +169,31 @@ const Room = () => {
               <div className="message--body">
                 <span>Hello World</span>
               </div>
+            </div> */}
             </div>
           </div>
+          <form onSubmit={handleSubmit} id="message--form">
+            <div id="textarea--container">
+              <textarea
+                required
+                id="message--input"
+                maxLength="1000"
+                placeholder="Please enter your message"
+                onChange={(e) => {
+                  setMessageBody(e.target.value);
+                }}
+                value={messageBody}
+              ></textarea>
+            </div>
+            <div className="send-btn--wrapper">
+              <input
+                className="btn btn--secondary"
+                type="submit"
+                value="Send"
+              />
+            </div>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} id="message--form">
-          <div id="textarea--container">
-            <textarea
-              required
-              id="message--input"
-              maxLength="1000"
-              placeholder="Please enter your message"
-              onChange={(e) => {
-                setMessageBody(e.target.value);
-              }}
-              value={messageBody}
-            ></textarea>
-          </div>
-          <div className="send-btn--wrapper">
-            <input className="btn btn--secondary" type="submit" value="Send" />
-          </div>
-        </form>
       </div>
     </main>
   );

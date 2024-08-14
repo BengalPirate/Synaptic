@@ -1,4 +1,4 @@
-.container {
+.room--format {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -16,13 +16,31 @@
 }
 
 .room--header {
-  display: flex;
-  flex-direction: row;
-  height: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: solid 0.5px gray;
 }
 
 .back-arrow {
-  width: fit-content;
+  grid-column: 1 / 3;
+  grid-row: 1;
+  transition: 0.3s;
+}
+
+.room--users {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.more-options {
+  display: flex;
+  justify-content: end;
+}
+
+.back-arrow:hover {
+  color: var(--themeColorMain);
 }
 
 .room--container {
