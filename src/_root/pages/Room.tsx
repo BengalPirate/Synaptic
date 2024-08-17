@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  databases,
-  appwriteConfig,
-  account,
-} from "../../lib/appwrite/config.ts";
+import { databases, appwriteConfig } from "../../lib/appwrite/config.ts";
 import { ID } from "appwrite";
 import { ArrowLeft, MoreVertical } from "react-feather";
 import { Link, useParams } from "react-router-dom";
