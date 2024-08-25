@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { databases, appwriteConfig } from "../../lib/appwrite/config.ts";
 import { Query } from "appwrite";
+import { ID } from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 
 import "../../../styles/messaging.css";
@@ -21,10 +22,26 @@ async function getMessagesDocumentById(id: string) {
   }
 }
 
+async function getUserDocumentsByUsernames(usernames: string[]) {
+  try {
+    const documents = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      Query.equal("username", usernames)
+    );
+    return documents;
+  } catch (error) {
+    console.error(`ERROR FETCHING USER DOCUMENTS: `, error);
+    return null; // or handle the error as needed
+  }
+}
+
 const Messaging = () => {
   const [userRooms, setUserRooms] = useState([])
 	const [roomPreviews, setRoomPreviews] = useState([])
 	const { user } = useUserContext()
+  const [newRoomUsernames, setNewRoomUsernames] = useState([])
+  const [newRoomMessage, setNewRoomMessage] = useState("")
 
   /*Set state for create-room to false */
   const [openPopup, setOpenPopup] = useState(false);
@@ -53,6 +70,36 @@ const Messaging = () => {
       fetchRoomPreviews();
     }
   }, [userRooms]);
+
+  const handlePopupSubmit = async (e) => {
+    e.preventDefault();
+
+    const newRoomUsers = getUserDocumentsByUsernames(newRoomUsernames)
+
+    const newRoomName = newRoomUsernames.join(", ")
+    const newRoomUserIds = newRoomUsers.map((newRoomUser) => newRoomUser.$id)
+    const newRoomId = ID.unique()
+
+    let newRoomPayload = {
+      room_name: newRoomName,
+      user_ids: newRoomUserIds,
+      messages: newRoomMessage, 
+    }
+
+    let createNewRoomResponse = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.roomsCollectionId,
+      newRoomId,
+      newRoomPayload
+    )
+
+    console.log("NEW ROOM CREATE RESPONSE: ", createNewRoomResponse)
+
+    setNewRoomMessage("")
+    setNewRoomUsernames([])
+
+  }
+
 
   const getUserRooms = async () => {
     try {
@@ -154,6 +201,7 @@ const Messaging = () => {
                     id="first-message"
                     placeholder="What would you like to say?"
                     className="textbox"
+                    onChange={(e) => {setNewRoomMessage(e.target.value)}} 
                   />
                 </div>
                 <button id="room-submit">Create Room</button>
