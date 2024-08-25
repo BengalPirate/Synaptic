@@ -95,6 +95,25 @@ const Messaging = () => {
 
     console.log("NEW ROOM CREATE RESPONSE: ", createNewRoomResponse)
 
+    const newMessageId = ID.unique()
+
+    let newMessagePayload = {
+      sender_username: user.username,
+      sender_id: user.id,
+      body: newRoomMessage,
+      receiver_usernames: newRoomUsernames,
+      receiver_ids: newRoomUserIds,
+      room_id: newRoomId,
+    }
+
+    let createMessageResponse = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      newMessageId,
+      newMessagePayload
+    );
+
+
     setNewRoomMessage("")
     setNewRoomUsernames([])
 
